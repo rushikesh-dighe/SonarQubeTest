@@ -1,0 +1,75 @@
+# SonarQube Helm Chart Values
+image:
+  repository: sonarqube
+  tag: "10.4.1-community"
+
+# Edition configuration (Community Edition)
+community:
+  enabled: true
+
+# Service configuration
+service:
+  type: LoadBalancer
+  externalPort: 80
+  internalPort: 9000
+
+# Monitoring configuration (required)
+monitoringPasscode: "Sonarqube@123"
+
+# Ingress configuration (optional - uncomment if you want to use ingress instead of LoadBalancer)
+# ingress:
+#   enabled: true
+#   hosts:
+#     - name: sonarqube.example.com
+#       path: /
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+
+# Persistent Volume Configuration
+persistence:
+  enabled: true
+  storageClass: "ebs-gp3-sc"
+  accessMode: ReadWriteOnce
+  size: 20Gi
+
+# PostgreSQL database configuration (embedded)
+postgresql:
+  enabled: true
+  postgresqlUsername: sonarUser
+  postgresqlPassword: sonarPass
+  postgresqlDatabase: sonarDB
+  persistence:
+    enabled: true
+    storageClass: "ebs-gp3-sc"
+    size: 20Gi
+
+# JVM Options
+sonarqube:
+  jvmOpts: "-Xmx2048m -Xms1024m"
+
+# Security Context
+securityContext:
+  fsGroup: 999
+
+# Node selector (optional - uncomment if you want to run on specific nodes)
+# nodeSelector: {}
+
+# Tolerations (optional - uncomment if you have node taints)
+# tolerations: []
+
+# Affinity (optional - uncomment for pod affinity rules)
+# affinity: {}
+
+# Environment variables
+env:
+  - name: SONAR_JDBC_URL
+    value: "jdbc:postgresql://{{ include \"postgresql.fullname\" . }}:5432/sonarDB"
+  - name: SONAR_JDBC_USERNAME
+    value: "sonarUser"     
